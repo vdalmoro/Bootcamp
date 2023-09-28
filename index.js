@@ -5,7 +5,7 @@ const { readFile, writeFile } = fs;
 const app = express();
 app.use(express.json());
 
-//teste
+//Chamada teste
 app.get("/teste", (req, res) => {
   res.send(req.method);
 });
@@ -55,10 +55,6 @@ app.listen(3009, async () => {
         console.log(err);
       });
   }
-});
-
-app.get("/teste", (req, res) => {
-  res.send(req.method);
 });
 
 //Busca marca com mais modelos
