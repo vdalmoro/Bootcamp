@@ -5,6 +5,7 @@ const { readFile, writeFile } = fs;
 const app = express();
 app.use(express.json());
 
+//teste
 app.get("/teste", (req, res) => {
   res.send(req.method);
 });
