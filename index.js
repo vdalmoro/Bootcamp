@@ -1,15 +1,43 @@
 import express from "express";
-import accountsRouter from "./routes/accounts.js";
 import { promises as fs, read, readFileSync, write } from "fs";
 
 const { readFile, writeFile } = fs;
-
 const app = express();
 app.use(express.json());
 
-app.use("/account", accountsRouter);
+app.get("/teste", (req, res) => {
+  res.send(req.method);
+});
 
-app.listen(3000, async () => {
+app.get("/marcas/maisModelos", (req, res) => {
+  const marcaMaisModelosRes = marcaMaisModelos();
+  res.send(marcaMaisModelosRes);
+});
+
+app.get("/marcas/menosModelos", (req, res) => {
+  const marcaMenosModelosRes = marcaMenosModelos();
+  res.send(marcaMenosModelosRes);
+});
+
+app.get("/marcas/listaMaisModelos/:X", (req, res) => {
+  const qtd = req.params.X;
+  const topBrands = ordenadasMax(qtd);
+  res.send(topBrands);
+});
+
+app.get("/marcas/listaMenosModelos/:X", (req, res) => {
+  const qtd = req.params.X;
+  const lowBrands = ordenadasMin(qtd);
+  res.send(lowBrands);
+});
+
+app.post("/marcas/listaModelos", (req, res) => {
+  const marca = req.body;
+  const resultado = buscarMarca(marca);
+  res.send(resultado);
+});
+
+app.listen(3009, async () => {
   try {
     await readFile("car-list.json");
     console.log("API Started!");
@@ -28,7 +56,11 @@ app.listen(3000, async () => {
   }
 });
 
-//Função 1
+app.get("/teste", (req, res) => {
+  res.send(req.method);
+});
+
+//Busca marca com mais modelos
 function marcaMaisModelos() {
   const carListData = readFileSync("car-list.json", "utf8");
   const carList = JSON.parse(carListData);
@@ -53,7 +85,7 @@ function marcaMaisModelos() {
   }
 }
 
-//Função 2
+//Busca marca com menos modelos
 function marcaMenosModelos() {
   const carListData = readFileSync("car-list.json", "utf8");
   const carList = JSON.parse(carListData);
@@ -78,13 +110,7 @@ function marcaMenosModelos() {
   }
 }
 
-const marcaMaisModelosRes = marcaMaisModelos();
-const marcaMenosModelosRes = marcaMenosModelos();
-
-console.log("MAIS modelos:", marcaMaisModelosRes);
-console.log("MENOS modelos:", marcaMenosModelosRes);
-
-//Função 3
+//Busca x marcas com mais modelos e ordena alfabeticamente
 function ordenadasMax(x) {
   const carListData = readFileSync("car-list.json", "utf8");
   const carList = JSON.parse(carListData);
@@ -113,7 +139,7 @@ function ordenadasMax(x) {
   return ordenadasMax;
 }
 
-//Função 4
+//Busca x marcas com menos modelos e ordena alfabeticamente
 function ordenadasMin(x) {
   const carListData = readFileSync("car-list.json", "utf8");
   const carList = JSON.parse(carListData);
@@ -142,18 +168,12 @@ function ordenadasMin(x) {
   return ordenadasMin;
 }
 
-const topBrands = ordenadasMax("48");
-console.log("Marcas com mais modelos:", topBrands);
-
-const bottomBrands = ordenadasMin("7");
-console.log("Marcas com menos modelos:", bottomBrands);
-
-//Função 5
+//Busca marca parametrizada
 function buscarMarca(targetBrand) {
   const carListData = readFileSync("car-list.json", "utf8");
   const carList = JSON.parse(carListData);
 
-  targetBrand = targetBrand.toLowerCase();
+  targetBrand = targetBrand.nomeMarca.toLowerCase();
 
   const brandData = carList.find(
     (car) => car.brand.toLowerCase() === targetBrand
@@ -164,7 +184,3 @@ function buscarMarca(targetBrand) {
     return [];
   }
 }
-
-const marca = "Honda";
-const models = buscarMarca(marca);
-console.log("Modelos da marca:", marca, models);
